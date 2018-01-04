@@ -1,0 +1,58 @@
+Sub ll_test_Z()
+Dim n As Integer, r As Single, c As Single, s As Single, u As Single, _
+z As Single, alfa As Single, str As String, tip As Integer
+n = Selection.Columns.Count
+For i = 1 To n
+    Cells(3, i).Value = Cells(2, i).Value - Cells(1, i).Value
+        If Cells(3, i).Value > 0 Then
+            Cells(4, i).Value = Cells(3, i).Value
+            Else
+            Cells(4, i).Value = -Cells(3, i).Value
+        End If
+Next
+For i = 1 To n
+s = Application.WorksheetFunction.Rank(Cells(4, i), Range(Cells(4, 1), Cells(4, n)), 1)
+r = Application.WorksheetFunction.CountIf(Range(Cells(4, 1), Cells(4, n)), Cells(4, i).Value)
+Cells(5, i).Value = s + (r - 1) * 0.5
+Next
+s = Application.WorksheetFunction.SumIf(Range(Cells(3, 1), Cells(3, n)), "<0", Range(Cells(5, 1), Cells(5, n)))
+r = Application.WorksheetFunction.SumIf(Range(Cells(3, 1), Cells(3, n)), ">0", Range(Cells(5, 1), Cells(5, n)))
+c = Application.WorksheetFunction.Min(r, s)
+tip = Application.InputBox("Ââåäèòå íîìåð àëüòåðíàòèâíîé ãèïîòåçû: " & Chr(13) & "1. p<>0,5; 2. p<0,5; 3. p>0,5," & Chr(13) & "ãäå p=P(xi<yi).", Type:=1)
+alfa = Application.InputBox("Ââåäèòå óðîâåíü çíà÷èìîñòè êðèòåðèÿ: ", Type:=1)
+If tip = 1 Then
+    u = Application.WorksheetFunction.NormSInv(1 - alfa / 2)
+Else
+    u = Application.WorksheetFunction.NormSInv(1 - alfa)
+End If
+z = n * (n + 1) / 4: z = z - c: d = n * (n - 1): d = d * (2 * n + 1)
+d = d / 24: d = d ^ (1 / 2): z = z / d
+    If tip = 1 Then
+        If z < u Then
+            str = "p=0,5"
+        Else
+            str = "p<>0,5"
+        End If
+    End If
+    If tip = 2 Then
+            If c = r And z >= u Then
+                    str = "p>0,5."
+                Else
+                    str = "p=0,5."
+            End If
+    End If
+    If tip = 3 Then
+            If c = s And z >= u Then
+                    str = "p>0,5."
+                Else
+                    str = "p=0,5."
+            End If
+    End If
+z = FormatNumber(z, 3): u = FormatNumber(u, 3)
+MsgBox ("Çíà÷åíèå ñòàòèñòèêè: Z= " & z & ". Êðèòåðèé ïðèíÿòèÿ Íî: Z < " & u & ". Ïðèíÿòü:" & str)
+Result = MsgBox("Îñòàâèòü ðàñ÷åòíóþ òàáëèöó?", 4 + 32, "Ðàñ÷åòû")
+If Result = 6 Then
+Exit Sub
+End If
+Range(Cells(3, 1), Cells(5, n)).ClearContents
+End Sub
